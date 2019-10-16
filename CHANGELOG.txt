@@ -1,0 +1,14 @@
+v1.0:
+    Get everything working. 
+v1.1:
+    Add sharing support. Add s!sharing
+v1.2:
+    Remove old sync and requests code and conver to async and aiohttp. 
+v1.3:
+    Add logging support. 
+v1.4:
+    Get tasks working. Add s!task command and new storage funcs
+v1.5:
+    Bug fixes for auto signup. Detection for already requested or scheduled for class list.
+v1.6:
+	Add playing presence and version in help command. 

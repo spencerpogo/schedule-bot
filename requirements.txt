@@ -1,0 +1,5 @@
+requests
+discord.py
+flask
+userutils
+dateparser==0.7.2
