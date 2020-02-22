@@ -1,25 +1,54 @@
 # schedule-bot
-Discord bot to automatically schedule enrichment classes. 
+### A discord chatbot for scheduling enrichment classes
+#### Why?
+I made this for fun and as a personal challenge, and also just because *why not?* I had a lot of fun and learned a lot along the way. 
+### Features
+- Viewing your current class
 
-I made this project as hobby project for a new site that was introduced into my school for enrichment classes, as I use discord a lot. 
+![Using the class command](https://totallynotavir.us/i/32fu2xpo.png)
 
-## Features
-- Database that stores logins
-- `class` command: See your next class, with configurable date
-- `list` command: Select a class with a reaction menu
-- Sharing: if enabled, you can see what classes your friends are signed up for
-- Automatic signup: Automatically be signed up for a certain class as soon as it's available
+- Picking a class with an interactive reaction menu (identifying details blurred)
 
-### File structure
-- `main.py` Starts bot, website, tasks, and logging
-- `cmds.py` Code to run individual commands
-- `config.py` Configuration of bot (prefix, gets environment variables)
-- `menu.py` Code for reaction menus
-- `schedule.py` Interacts with enrichment website's API
-- `storage.py` Interacts with the database
-- `tasks.py` Code for recurring task(s) (auto signup)
-- `utils.py` Miscellaneous utilities (functions to resolve members, parse courses)
-- `admin.py` Admin commands (for testing)
-- `web.py` Website (to keep bot alive)
+![Picking a class with the list command](https://totallynotavir.us/i/k876ni93.png)
 
-Made by [Scoder12](https://scoder12.ml)
+- Allowing your classes to be shared with your friends
+
+![Enabling sharing with the sharing command](https://totallynotavir.us/i/s5wl3icx.png)
+
+![Checking the class of a friend with sharing enable](https://totallynotavir.us/i/5zpppgm5.png)
+
+- Automatically sign up for classes as soon as they're available
+
+![Enabling automatic signup](https://totallynotavir.us/i/2z5o3igb.png)
+
+![Being automatically signed up](https://totallynotavir.us/i/1kj7w829.png)
+
+- Check how much time you've spent on the school math site this school year
+
+![Checking IXL math stats](https://totallynotavir.us/i/al8bt350.png)
+
+- Frustrationless sign up process: checks if login is valid before allowing signup
+- Thorough and easy to manage logging system
+
+### Internals
+- Written in Python 3 with [discord.py](https://discordpy.readthedocs.io/)
+- Fully asynchronous
+- 1300+ lines of code
+- Intelligent configuration system using environment variables enables easy configuration of and switch between development and production modes
+- Runs a web server so that I know it is online
+
+### File breakdown
+- `main.py`: Set up logging, start bot, tasks, and web server, handle messages
+- `cmds.py`: Where most commands are handled. Interfaces between discord and code
+- `admin.py`: Admin commands (for testing)
+- `config.py`: Interfaces for environment variables and enables access to discord client across files
+- `ixl.py`: API binding for math site
+- `schedule.py`: API binding for scheduling site
+- `menu.py`: Reaction menus
+- `storage.py`: Database (local JSON file) interface
+- `tasks.py`: Recurring task (auto signup) runner
+- `web.py`: Very simple web server
+- `utils.py`: Utilies: message and data processing, etc.
+
+
+Made by [Scoder12](https://scoder.ml)
