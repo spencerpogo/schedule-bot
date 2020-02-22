@@ -1,11 +1,15 @@
+"""Admin commands"""
 import utils
 import storage
 import config
 import tasks
 
 
+OWNER_ID = 339943808584384512
+
+
 async def dbg_register(m, *args):
-    if m.author.id != 339943808584384512:
+    if m.author.id != OWNER_ID:
         return
     
     if len(args) != 4:
@@ -23,7 +27,7 @@ async def dbg_register(m, *args):
 
 
 async def dbg_sharing(m, *args):
-    if m.author.id != 339943808584384512:
+    if m.author.id != OWNER_ID:
         return
     if len(args) != 3:
         return "should be 3 args"
@@ -66,7 +70,7 @@ async def dbg_sharing(m, *args):
 
 
 async def run_task(m, *args):
-    if m.author.id != 339943808584384512:
+    if m.author.id != OWNER_ID:
         return
     #if len(args) < 2:
     #    return "ur bad"

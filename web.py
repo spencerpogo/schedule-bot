@@ -6,6 +6,8 @@ logger = logging.getLogger('WEB')
 async def hello(request):
     return web.Response(text="Hello, world")
 
+# TODO: add run task
+
 app = web.Application()
 app.add_routes([web.get('/', hello)])
 

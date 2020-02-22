@@ -2,6 +2,7 @@ import discord
 import os
 
 PREFIX="s!"
+embed_color = None
 bot = discord.Client()
 
 def getenv(key, default=None):

@@ -1,14 +1,18 @@
 v1.0:
     Get everything working. 
 v1.1:
-    Add sharing support. Add s!sharing
+    Add sharing support and s!sharing command. 
 v1.2:
-    Remove old sync and requests code and conver to async and aiohttp. 
+    Remove old sync and requests code and convert to async and aiohttp. 
 v1.3:
     Add logging support. 
 v1.4:
     Get tasks working. Add s!task command and new storage funcs
 v1.5:
-    Bug fixes for auto signup. Detection for already requested or scheduled for class list.
+    Bug fixes for auto signup. Detection for already requested or scheduled for class list. Better logging for tasks. 
 v1.6:
-	Add playing presence and version in help command. 
+    Misc bug fixes.
+v1.7:
+    Removed JSONBin service as database, switched to local file. Schedule website client updated to use new login process.
+v1.8:
+    Add IXL stats. Switch some commands to use embeds. 

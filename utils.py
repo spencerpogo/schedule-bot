@@ -2,7 +2,30 @@ import discord
 from menu import MenuItem
 import datetime
 import config
+import ixl
 import logging
+
+
+EMBED_COLOR = discord.Color(0x293984)
+
+
+async def ixl_stats_summary(stats):
+    summary = await ixl.trykeys(stats, "summary")
+
+    sec = await ixl.trykeys(summary, "secondsSpent")
+    def s(amnt, word):
+        base = f"{amnt} {word}"
+        return base if amnt == 1 else base + "s"
+    
+    spent_delta = datetime.timedelta(seconds=sec)
+
+    answered = await ixl.trykeys(summary, "questionsAnswered")
+    answered_summary = s(answered, "question")
+
+    skills = await ixl.trykeys(summary, "numSkills")
+    skills_summary = s(skills, "skill")
+
+    return spent_delta, answered_summary, skills_summary
 
 
 async def next_dt(today=None):
@@ -37,25 +60,26 @@ def check_user_id(channel, arg):
 
 
 def check_mention(channel, arg):
-	if arg.startswith('<@') and arg[-1] == '>':
-		if arg[2] == '!':
-			user_id = arg[3:-1]
-		else:
-			user_id = arg[2:-1]
-		try:
-			member = channel.guild.get_member(int(user_id))
-			if member is not None:
-				return member
-		except ValueError:
-			pass
+    arg = arg.strip()
+    if arg.startswith('<@') and arg[-1] == '>':
+        if arg[2] == '!':
+            user_id = arg[3:-1]
+        else:
+            user_id = arg[2:-1]
+        try:
+            member = channel.guild.get_member(int(user_id))
+            if member is not None:
+                return member
+        except ValueError:
+            pass
 
 
 def check_name_with_discrim(channel, arg):
-	member = discord.utils.find(
-		lambda m: str(m).lower() == arg.lower(),
-		channel.members
-	)
-	return member
+    member = discord.utils.find(
+        lambda m: str(m).lower() == arg.lower(),
+        channel.members
+    )
+    return member
 
 
 def check_name_without_discrim(channel, arg):

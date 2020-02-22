@@ -1,14 +1,14 @@
-import config
+import os
 import aiohttp
 import datetime
 import storage
+import config
 import logging
 
-print('scheduling name is', __name__)
 logger = logging.getLogger(__name__)
 
-BASE = config.getenv("BASE") or input('base: ')
-BASE2 = config.getenv('BASE2') or input('base2: ')
+BASE = os.getenv("BASE") or input('base: ')
+BASE2 = os.getenv('BASE2') or input('base2: ')
 
 
 class APIError(Exception):
@@ -24,7 +24,7 @@ async def tryjson(r):
         raise
     else:
         return j
-    
+
 async def trykey(j, k):
     if type(j) is not dict:
         logger.error("Error expecting json to be dict!", j)
@@ -80,19 +80,16 @@ class API:
             msgs = '\n'.join(j['ErrorMessages'])
             raise APIError(f"{msgs} (Note: you have to have set your password in the web app to be able to log in! )")
         if 'IsAuthorized' not in j or not j['IsAuthorized']:
-            raise APIError(f"Couldn't check if authorized: {j}")
+            raise APIError(f"Couldn't log into enriching students. Check your password and try again. (Note: you have to have set your password in the web app to be able to log in! )")
 
-        # find the redirect
-        redir = await trykey(j, 'RedirectTo')
-        async with self.s.get(redir) as r:
-            # and get the token from the end
-            cipher = str(r.url).split('/')[-1]
-        #token = urllib.parse.unquote(token)
-        #logger.debug('cipher is: ', cipher)
+        vmod = await trykey(j, "ViewModel")
+        token1 = await trykey(vmod, "Token1")
+        token2 = await trykey(vmod, "Token2")
 
         # login phase2
-        async with self.s.post(BASE2 + "/v1.0/login/viacipher", json={
-            'idToken': cipher
+        async with self.s.post(BASE2 + "/v1.0/login/viatokens", json={
+            'token1': token1,
+            'token2': token2
         }) as r:
             j = await tryjson(r)
         self.token = await trykey(j, 'authToken')
@@ -189,18 +186,20 @@ class API:
 class APIHelperError(Exception): pass
 
 
-async def api_helper(user):
+async def api_helper(user, 
+    register_error_msg=f"Please register with `{config.PREFIX}register` before running this command",
+    unknown_error_msg=f"An unexpected error has occurred. Please register again with `{config.PREFIX}register`"):
     logger.info
     # logger.debug(user.id)
     try:
         u = await storage.get(await storage.with_id(user.id))
     except storage.NotFound:
         logger.warning("Not registered!")
-        return f"Please register with `{config.PREFIX}register` before running this command"
+        return register_error_msg
     except storage.MultipleResults:
         logger.warning("eeeee multiple results registered!")
         await storage.clear(await storage.with_id(user.id))
-        return f"An unexpected error has occurred. Please register again with `{config.PREFIX}register`"
+        return unknown_error_msg
     
     email = u['em']
     pwd = u['pwd']

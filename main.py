@@ -1,5 +1,4 @@
-"""Schedule bot v1.6"""
-#raise
+"""Schedule bot v1.8"""
 import os
 print(f"Starting in mode {os.getenv('MODE')!r}...")
 import time
@@ -17,34 +16,41 @@ import sys
 import logging
 import logging.handlers
 
-version = 'v1.6'
+version = 'v1.8'
 
 # LOGGING
 root = logging.getLogger()
 logger = logging.getLogger('main')
 root.setLevel(logging.DEBUG)
-logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s %(levelname)s [%(name)s] %(message)s')
-
-def logfilter(record):
-    print(record.name)
-    return 0
-root.addFilter(logfilter)
+formatter = logging.Formatter('%(asctime)s [%(name)s] %(levelname)s: %(message)s')
 
 # one file for every day
-fh = logging.handlers.TimedRotatingFileHandler(os.path.abspath('./logs/bot.log'),               when='midnight', backupCount=5)
+fh = logging.handlers.TimedRotatingFileHandler(os.path.abspath('./logs/bot.log'), 
+    when='midnight', 
+    backupCount=5)
 fh.setLevel(logging.DEBUG)
 fh.setFormatter(formatter)
 root.addHandler(fh)
+
+error_fh = logging.handlers.RotatingFileHandler(os.path.abspath('./logs/bot_errors.log'), 
+    maxBytes=2048, 
+    backupCount=5)
+error_fh.setLevel(logging.ERROR)
+error_fh.setFormatter(formatter)
+root.addHandler(error_fh)
 
 seh = logging.StreamHandler()
 seh.setLevel(logging.DEBUG)
 seh.setFormatter(formatter)
 root.addHandler(seh)
 
-for i in ['discord', 'websockets']:
-    l = logging.getLogger(i)
-    l.setLevel(logging.INFO)
+for name, level in {
+    'discord': logging.INFO,
+    'websockets': logging.INFO,
+    'aiohttp.access': logging.ERROR
+}.items():
+    l = logging.getLogger(name)
+    l.setLevel(level)
     l.addHandler(seh)
 
 soh = logging.StreamHandler(stream=sys.stdout)
@@ -94,6 +100,12 @@ CMDS = [
         'usage': 'auto OR {PRE}auto pattern comment',
         'desc': 'shows your auto sharing configuration or sets auto sharing to trigger on pattern and gin up with comment',
         'func': cmd_funcs.auto
+    },
+    {
+        'name': 'ixl',
+        'usage': 'ixl',
+        'desc': 'Shows IXL stats (assuming your IXL and enriching students passwords are the same)',
+        'func': cmd_funcs.ixl_cmd
     },
     {
         'name': 'ping',
@@ -173,14 +185,15 @@ async def on_message(m):
                 logger.exception("API error in cmd {cmd}: ")
                 await m.channel.send("Enriching Students API error: " + str(e))
             else:
-                logger.exception("Error in cmd {cmd}: ")
-                await m.channel.send("```\n" + traceback.format_exc() + "\n```")
+                e = traceback.format_exc()
+                logger.exception("Error in cmd {cmd}: {e}")
+                await m.channel.send(f"```\n{e}\n```")
     
 
 if __name__ == '__main__':
     print("Running...")
     logger.info("\n\n-----RESTART-----\n\n")
-    logger.info(f"Schedule bot v{version} starting...")
+    logger.info(f"Schedule bot {version} starting...")
     loop = asyncio.get_event_loop()
     loop.create_task(web.run())
     tasks.start(loop)

@@ -1,25 +1,28 @@
+"""Command handlers"""
 import storage
 import time
 import dateparser
 import schedule
+import ixl
+import aiohttp
+import discord
 import config
 from menu import number_menu, period_menu
 import utils
 import logging
 
-print('cmds name is', __name__)
 logger = logging.getLogger(__name__)
 
 
 async def pong(m , *args):
     start = time.time()
-    m = await m.channel.send("Pong! ")
+    m = await m.channel.send(":ping_pong: Pong!")
     stop = time.time()
     await m.delete()
     ms = (stop - start) * 1000
     #bot = config.bot.lantency * 100
     #return f"Pong! `{ms:.0f} ms` (bot latency: `{bot:.0f}`)"
-    return f"Pong! `{ms:.0f} ms`"
+    return f":ping_pong: Pong! `{ms:.0f} ms`"
 
 
 
@@ -29,12 +32,12 @@ async def register(m, *args):
         return f"Usage: `{config.PREFIX}register email pwd`"
     l = await m.channel.send("Loading...")
     _, email, pwd = args
-    api = schedule.API(email, pwd)
-    try:
-        await api.login()
-    except schedule.APIError as e:
-        await l.edit(content="Couldn\'t register: " + str(e))
-        return
+    async with schedule.API(email, pwd) as api:
+        try:
+            await api.login()
+        except schedule.APIError as e:
+            await l.edit(content="Couldn\'t register: " + str(e))
+            return
     
     uid = str(m.author.id)
     logger.info(f"Registering {uid}")
@@ -93,11 +96,13 @@ async def cls(m, *args):
         
         classes = await api.get_schedule(date)
     
+    # Color: #293984
     ds = date.strftime("%m/%d")
-    msg = [f"On {ds} {user} has: "]
+    embed = discord.Embed(title=f":calendar_spiral: Classes on {ds}", color=utils.EMBED_COLOR)
+    embed.set_author(name=str(user), icon_url=user.avatar_url)
     for s in classes:
-        msg.append(f"{s['periodDescription']}: {s['courseName']} {'(Room ' + s['courseRoom']+ ')' if s['courseRoom'] else '(no room)'} {'Comment: ' + s['schedulerComment']+ ')' if s['schedulerComment'] else ''}")
-    return '\n'.join(msg)
+        embed.add_field(name=s['periodDescription'], value=f"{s['courseName']} {'(Room ' + s['courseRoom']+ ')' if s['courseRoom'] else '(no room)'} {'Comment: ' + s['schedulerComment']+ ')' if s['schedulerComment'] else ''}")
+    return embed
 
 
 async def auto(m, *args):
@@ -157,7 +162,7 @@ async def sharing(m, *args):
         storage.clear(await storage.with_id(m.author.id))
         await msg.edit(content=f"An unexpected error has occurred. Please register again with `{config.PREFIX}register`")
         return
-    share = u.get('share', False)
+    share = bool(u.get('share', False))
     d = {
         True: 'enabled',
         False: 'disabled'
@@ -188,18 +193,20 @@ async def c_list(m, *args):
             return api
         
         ds = date.strftime("%m/%d")
+        if ds is None:
+            return "Invalid date"
         cls = await api.get_schedule(date)
         c = [i for i in cls if str(i.get('periodId')) == '1']
         if len(c) != 1:
             raise ValueError(f"There should only be one period 1: {cls} produces {c}")
         c = c[0]
-        if c['courseName'] != 'Open Schedule':
-            return f"You are already scheduled for {c['courseName']} on {ds}"
+        #if c['courseName'] != 'Open Schedule':
+        #    return f"You are already scheduled for {c['courseName']} on {ds}"
         
         data = await api.get_classes(date)
         
         if 'courses' not in data or not data['courses']:
-            return f"No courses on {ds}"
+            return f"You are already scheduled on {ds} (no courses)"
         
         courses = data['courses']
         menu_choices = await utils.process_courses(courses)    
@@ -236,3 +243,32 @@ async def c_list(m, *args):
                 method=utils._key(d, 'method', default=''))
             return f"{m.author.mention}, successfully scheduled you for {name} on {ds}"
     #return f"{m.author.mention} Something went wrong. "
+
+
+async def ixl_cmd(m, *args):
+    a = await schedule.api_helper(m.author)
+    if isinstance(a, str):
+        return a
+    em = a.em
+    EDOM = "@" + config.getenv("EDOM")
+    if not em.endswith(EDOM):
+        return "Your enriching students email does not end with the proper domain. Cannot sign in to ixl. "
+    user = em[:len(EDOM) - 1]
+    pwd = a.pwd
+    print(user)
+    print(pwd)
+    async with aiohttp.ClientSession() as s:
+        try:
+            await ixl.login(s, user, pwd)
+        except:
+            return "Invalid login details for IXL"
+        stats = await ixl.get_stats(s, "2019-08-22")
+        time, answered, skills = await utils.ixl_stats_summary(stats)
+
+        embed = discord.Embed(title="IXL stats", 
+            colour=discord.Color(0x52b700))
+        embed.set_image(url="https://www.ixl.com/dv3/VEBuy2opNnXK8SNo8mgb7X9STdE/yui3/site-nav/assets/icon-ixl-logo-156.png")
+        embed.add_field(name="Time spent practicing", value=time)
+        embed.add_field(name="Questions answered", value=answered)
+        embed.add_field(name="Skills practiced", value=skills)
+        return embed

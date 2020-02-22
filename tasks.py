@@ -66,10 +66,11 @@ async def auto_signup():
     data = await storage.get_all_users()
     for entry in data:
         r = await _signup_helper(entry)
+        i = int(entry.get('id', '1234'))
         msg = "\n".join(r)
+        logger.info(f"msg for {i}: {msg!r}")
         if not msg:
             continue
-        i = int(entry.get('id', '1234'))
         members = config.bot.get_all_members()
         user = get(members, id=i)
         if not user:
@@ -78,13 +79,13 @@ async def auto_signup():
         try:
             send = await check_messages(user, msg)
         except:
-            logger.exception("Error swallowed while checking message history for {user}")
+            logger.exception("Error while checking message history for {user}, not sending")
             send = False
         if send:
             logger.info(f'sending {msg!r} to {i}...')
             await user.send(msg)
         else:
-            logger.info("not sending {msg!r} to {i}")
+            logger.info(f"not sending {msg!r} to {i}")
 
 
 FUNCS = {

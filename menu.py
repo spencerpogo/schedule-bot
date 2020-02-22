@@ -4,7 +4,6 @@ import asyncio
 import config
 import logging
 
-print('menu name is', __name__)
 logger = logging.getLogger(__name__)
 
 
@@ -25,6 +24,8 @@ emoji_dict = {
     "yes": "✅",
     "no": "❌"
 }
+
+EMBED_COLOR = discord.Color(0x293984)
 
 
 class MenuItem:
@@ -84,7 +85,7 @@ async def _gen_embeds(pages, title=None, page_in_title=True, color=None, emojis=
             t = title + f"(Page {i+1}/{len(pages)})"
         else:
             t = title
-        embed = discord.Embed(title=t, colour=color)
+        embed = discord.Embed(title=t, colour=EMBED_COLOR)
         for i, c in enumerate(p):
             if type(c) is not dict:
                 c = c.to_field()
