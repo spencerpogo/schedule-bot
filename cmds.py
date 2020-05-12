@@ -268,7 +268,7 @@ async def ixl_cmd(m, *args):
         embed = discord.Embed(title="IXL stats", 
             colour=discord.Color(0x52b700))
         embed.set_image(url="https://www.ixl.com/dv3/VEBuy2opNnXK8SNo8mgb7X9STdE/yui3/site-nav/assets/icon-ixl-logo-156.png")
-        embed.add_field(name="Time spent practicing", value=time)
-        embed.add_field(name="Questions answered", value=answered)
-        embed.add_field(name="Skills practiced", value=skills)
+        embed.add_field(name="Time spent practicing", value=time, inline=False)
+        embed.add_field(name="Questions answered", value=answered, inline=False)
+        embed.add_field(name="Skills practiced", value=skills, inline=False)
         return embed
