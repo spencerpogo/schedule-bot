@@ -53,7 +53,7 @@ async def _signup_helper(user):
                     if v['reqCid'] == v['cid']:
                         logger.info('Pattern found but course already requested. ')
                         continue
-                    logger.info(f"Scheduling {v['name']}...")
+                    logger.info(f"Scheduling on {ds} {v['name']}...")
                     await api.schedule(date, v['cid'], comment,
                         method=v['method'], period=v['period'])
                     action = v['method']+'ed' if v['method'] else 'scheduled'
