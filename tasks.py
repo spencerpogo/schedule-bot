@@ -41,8 +41,8 @@ async def _signup_helper(user):
             if len(c) != 1:
                 raise ValueError(f"There should only be one period 1: {cls} produces {c}")
             c = c[0]
-            if c['courseName'] != 'Open Schedule':
-                logger.info(f"On {ds} user is already signed up")
+            if c['courseName'] != 'Please schedule your CP Flex session!':
+                logger.info(f"On {ds} user is already signed up: {c['courseName']}")
                 continue
             courses = await api.get_classes(date)
             logger.info(f'Processing for {ds}...')
