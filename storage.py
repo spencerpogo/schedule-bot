@@ -14,10 +14,7 @@ DB_FILENAME = config.getenv("DB_FILE") or "db.json"
 async def read():
     with open(DB_FILENAME, "r") as f:
         data = f.read()
-    try:
-        return json.loads(data)
-    except json.JSONDecodeError as e:
-        raise json.JSONDecodeError(f"Unable to parse database from {DB_FILENAME} as JSON") from e
+    return json.loads(data)
 
 
 async def update(newdata):
