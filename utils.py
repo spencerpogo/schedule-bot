@@ -27,24 +27,20 @@ async def ixl_stats_summary(stats):
 
     return spent_delta, answered_summary, skills_summary
 
-
 async def next_dt(today=None):
-    """Returns the datetime of the next tuesday or thursday
-    """
+    """Returns datetime of next wednesday"""
     if today is None:
         today = datetime.datetime.now()
     wd = today.isoweekday()
-    if wd == 2 or wd == 4:
+    if wd == 3:
         return today
-    if wd < 2: # can only be 1
-        offset = 2 - wd
-    elif wd < 4:
-        offset = 4 - wd
-    else: # more than 4
-        # find end of week, then add to to get to tuesday
-        offset = 2 + (7 - wd)
+    if wd < 3:
+        # wednesday is this week
+        offset = 3 - wd
+    else:
+        # wednesday is next week
+        offset = 3 + (7 - wd)
     return today + datetime.timedelta(days=offset)
-
 
 def get_channel_members(channel_id):
 	return config.bot.get_channel(channel_id).members
