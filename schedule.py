@@ -172,6 +172,7 @@ class API:
                 raise APIError(f"Invalid response recieved: {j}")
             else:
                 if j['errorMessages'] != []:
+                    logger.error(f"API Error: {j}")
                     raise APIError(' '.join(j['errorMessages']))
     
 
