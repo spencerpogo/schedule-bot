@@ -78,7 +78,7 @@ async def auto_signup():
             continue
         try:
             send = await check_messages(user, msg)
-        except:
+        except Exception:
             logger.exception("Error while checking message history for {user}, not sending")
             send = False
         if send:
@@ -143,7 +143,7 @@ async def main():
             logger.info(f'sleeping for {t}')
             # wait at least 15 secs or t
             await asyncio.sleep(t)
-        except:
+        except Exception:
             logger.exception("Exception in tasks! ")
             await asyncio.sleep(5)
             

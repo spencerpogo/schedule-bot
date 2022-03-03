@@ -219,7 +219,7 @@ async def c_list(m, *args):
             title=f"{m.author}'s class menu for {ds} (wait for all reactions before choosing)")
         try:
             await nm.delete()
-        except:
+        except Exception:
             pass
         if choice is not None:
             d = choice.value
@@ -231,7 +231,7 @@ async def c_list(m, *args):
             if not p:
                 try:
                     await pm.delete()
-                except:
+                except Exception:
                     pass
                 if p is False:
                     await m.channel.send(":x: cancelled")
@@ -260,7 +260,7 @@ async def ixl_cmd(m, *args):
     async with aiohttp.ClientSession() as s:
         try:
             await ixl.login(s, user, pwd)
-        except:
+        except Exception:
             return "Invalid login details for IXL"
         stats = await ixl.get_stats(s, "2019-08-22")
         time, answered, skills = await utils.ixl_stats_summary(stats)

@@ -16,8 +16,8 @@ async def read():
         data = f.read()
     try:
         return json.loads(data)
-    except:
-        raise json.JSONDecodeError(f"Unable to parse database from {DB_FILENAME} as JSON")
+    except json.JSONDecodeError as e:
+        raise json.JSONDecodeError(f"Unable to parse database from {DB_FILENAME} as JSON") from e
 
 
 async def update(newdata):
@@ -46,9 +46,9 @@ async def get(condition, ignore_exceptions=True):
         try:
             if condition(i):
                 matches.append(i)
-        except:
+        except Exception as e:
             if not ignore_exceptions:
-                raise
+                raise e
     if len(matches) > 1:
         raise MultipleResults(f"{len(matches)} results for {condition}")
     elif len(matches) < 1:
@@ -74,7 +74,7 @@ async def clear(condition, ignore_exceptions=True):
     for i in data.get('data', []):
         try:
             r = condition(i)
-        except:
+        except Exception:
             if not ignore_exceptions:
                 raise
         if not r:

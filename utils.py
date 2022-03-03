@@ -217,7 +217,7 @@ async def process_courses(courses):
             avail = '?'
         try:
             avail = maxseats - taken
-        except:
+        except Exception:
             avail = '?'
         status = "REQUESTED " if _key(c, 'appointmentRequestCourseId') == c['courseId'] else ""
         item = MenuItem(f"{status}{title}", # title
