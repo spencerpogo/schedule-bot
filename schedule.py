@@ -171,9 +171,10 @@ class API:
             if 'errorMessages' not in j:
                 raise APIError(f"Invalid response recieved: {j}")
             else:
-                if j['errorMessages'] != []:
+                error_msg = ' '.join(j['errorMessages'])
+                if j['errorMessages'] != '':
                     logger.error(f"API Error: {j}")
-                    raise APIError(' '.join(j['errorMessages']))
+                    raise APIError(error_msg)
     
 
     async def __aenter__(self):
